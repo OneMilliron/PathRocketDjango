@@ -1,4 +1,4 @@
 from django.http import HttpResponse
 
 def home(request):
-    return HttpResponse("Welcome to the Users app!")
+    return HttpResponse("Welcome to the CoverLetters app!")
