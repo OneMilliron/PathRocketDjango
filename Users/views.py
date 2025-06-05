@@ -93,3 +93,5 @@ def activate_user(request, uidb64, token):
         return Response({"message": "Account activated successfully."})
     else:
         return Response({"error": "Invalid or expired token."}, status=400)
+
+

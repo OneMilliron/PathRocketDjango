@@ -10,7 +10,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('register/', register_user),
     path('me/', user_profile_view, name='user-profile'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Login
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Login
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh
     path('activate/<uidb64>/<token>/', activate_user),
 ]
