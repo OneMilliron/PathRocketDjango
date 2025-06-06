@@ -9,4 +9,6 @@ urlpatterns = [
     path('resumes/', include('Resumes.urls')),
     path('coverletters/', include('Coverletters.urls')),
     #path('chatbot/', include('ChatBot.urls')),
+    path('payments/', include('Payments.urls')),
+
 ]

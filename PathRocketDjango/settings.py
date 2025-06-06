@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Users.apps.UsersConfig',
     'rest_framework',
+    'Payments',
+    'ChatBot',
+    'Coverletters',
+    'Jobs',
+    'Resumes'
 ]
 
 REST_FRAMEWORK = {
@@ -49,8 +57,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'user': '1/minute',  # still works for general use if needed
-        'resume_generation': '3/hour',  # 👈 this must match your scope name
+        'user': '10/minute',  # still works for general use if needed
+        'resume_generation': '30/hour',  # 👈 this must match your scope name
     }
 }
 
@@ -155,3 +163,12 @@ EMAIL_HOST_USER = 'aidanmilliron96@gmail.com'  # your full Gmail address
 EMAIL_HOST_PASSWORD = 'coqb svma oval dpir'     # your Gmail app password
 DEFAULT_FROM_EMAIL = 'Aidan from PathRocket <aidanmilliron96@gmail.com>'  # Optional
 
+import os
+
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+
+
+import os
+
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
