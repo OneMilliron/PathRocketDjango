@@ -6,7 +6,7 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def generate_resume(profile, job=None):
+def generate_resume(profile, job=None, is_tailored=False):
     name = f"{profile.user.first_name} {profile.user.last_name}".strip()
     education = profile.education or "N/A"
     experience = profile.experience or "N/A"
@@ -17,6 +17,7 @@ def generate_resume(profile, job=None):
     job_company = job.get('company') if job else None
     job_desc = job.get('description') if job else None
 
+    # Base prompt (same for general version)
     prompt = f"""
 You are a professional resume generator.
 
@@ -29,12 +30,16 @@ Skills: {skills}
 Summary: {summary}
 """
 
-    if job_title:
-        prompt += f"\nThe user is applying for the position: {job_title}"
-    if job_company:
-        prompt += f" at {job_company}."
-    if job_desc:
-        prompt += f"\nJob Description: {job_desc}"
+    if is_tailored and job:
+        prompt += f"""
+
+The user is applying for the position: {job_title or 'N/A'} at {job_company or 'N/A'}.
+
+Job Description: {job_desc or 'N/A'}
+
+Please tailor the resume to this specific job, emphasizing the most relevant skills and experience for this position. Match language to the job posting, and optimize for ATS systems.
+
+"""
 
     prompt += "\nFormat the resume with clear headings and bullet points."
 

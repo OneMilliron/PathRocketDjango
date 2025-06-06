@@ -49,9 +49,11 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'user': '3/day',  # ✅ Limit to 3 resume generations per user per day
+        'user': '1/minute',  # still works for general use if needed
+        'resume_generation': '3/hour',  # 👈 this must match your scope name
     }
 }
+
 
 from datetime import timedelta
 
