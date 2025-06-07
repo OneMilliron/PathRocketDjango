@@ -8,5 +8,5 @@ from .models import Job
 from .serializers import JobSerializer
 
 class JobListView(ListAPIView):
-    queryset = Job.objects.all().order_by("-date_posted")
+    queryset = Job.objects.all().order_by("-created_at")
     serializer_class = JobSerializer
