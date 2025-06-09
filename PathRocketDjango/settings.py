@@ -172,3 +172,12 @@ STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 import os
 
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+sentry_sdk.init(
+    dsn="https://f7fcb8c84984174dccbcd29f3de2cb07@o4509470461132800.ingest.us.sentry.io/4509470465196032",
+    integrations=[DjangoIntegration()],
+    send_default_pii=True  # Includes user info, IP address, headers, etc.
+)
