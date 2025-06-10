@@ -46,31 +46,37 @@ INSTALLED_APPS = [
     'ChatBot',
     'Coverletters',
     'Jobs',
-    'Resumes'
+    'Resumes',
+    "corsheaders",
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',  # ✅ Add this line
+    ),
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'user': '10/minute',  # still works for general use if needed
-        'resume_generation': '30/hour',  # 👈 this must match your scope name
+        'user': '10/minute',
+        'resume_generation': '30/hour',
     }
 }
+
 
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -163,6 +169,13 @@ EMAIL_HOST_USER = 'aidanmilliron96@gmail.com'  # your full Gmail address
 EMAIL_HOST_PASSWORD = 'coqb svma oval dpir'     # your Gmail app password
 DEFAULT_FROM_EMAIL = 'Aidan from PathRocket <aidanmilliron96@gmail.com>'  # Optional
 
+
+#Cors allowed origins
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+
 import os
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
@@ -181,3 +194,6 @@ sentry_sdk.init(
     integrations=[DjangoIntegration()],
     send_default_pii=True  # Includes user info, IP address, headers, etc.
 )
+
+
+CORS_ALLOW_ALL_ORIGINS = True  # ✅ For dev only
