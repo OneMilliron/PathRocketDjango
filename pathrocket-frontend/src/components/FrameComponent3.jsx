@@ -14,7 +14,7 @@ const FrameComponent3 = ({ className = "" }) => {
         />
         <div className="flex flex-col items-start justify-start pt-0.5 px-0 pb-0">
           <h2 className="m-0 relative text-[length:inherit] font-bold font-[inherit] z-[1] mq450:text-3xl mq1000:text-[40px]">
-            Our Dashboard
+            Our Dashboard (Coming Soon)
           </h2>
         </div>
       </div>

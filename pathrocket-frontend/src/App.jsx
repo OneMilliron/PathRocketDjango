@@ -51,7 +51,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<NextStepLandingPageFinal />} />
-      <Route path="/06-resume-grader" element={<ResumeGrader />} />
+      <Route path="/other" element={<ResumeGrader />} />
     </Routes>
   );
 }

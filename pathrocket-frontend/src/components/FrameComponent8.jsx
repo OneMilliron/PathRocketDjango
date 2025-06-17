@@ -15,7 +15,7 @@ const FrameComponent8 = ({ className = "" }) => {
         <div className="h-[74px] w-[1057px] relative bg-Primary hidden max-w-full" />
         <div className="flex flex-row items-start justify-start gap-[9px] max-w-full">
           <h1 className="m-0 relative text-[length:inherit] font-bold font-[inherit] z-[7] mq725:hidden">
-            Generate Your Resume With NeXtstep
+            Generate Your Resume With Path Rocket
           </h1>
           <div className="flex flex-col items-start justify-start pt-0.5 px-0 pb-0">
             <img
@@ -28,19 +28,19 @@ const FrameComponent8 = ({ className = "" }) => {
         </div>
         <div className="w-[82px] flex flex-col items-start justify-start pt-[7px] px-0 pb-0 box-border">
           <div className="self-stretch flex flex-row items-end justify-between gap-5">
-            <img
+            {/*<img
               className="h-7 w-[29px] relative z-[7]"
               loading="lazy"
               alt=""
               src="/vector2.svg"
-            />
+            />*/}
             <div className="flex flex-col items-start justify-end pt-0 px-0 pb-0.5">
-              <img
+              {/*<img
                 className="w-5 h-[23px] relative z-[7]"
                 loading="lazy"
                 alt=""
                 src="/vector1.svg"
-              />
+              />*/}
             </div>
           </div>
         </div>
@@ -50,12 +50,12 @@ const FrameComponent8 = ({ className = "" }) => {
         alt=""
         src="/vector-101.svg"
       />
-      <img
+      {/*<img
         className="h-[calc(100%_-_22px)] w-[52px] absolute !!m-[0 important] top-[11px] right-[17px] bottom-[11px] max-h-full object-contain z-[7]"
         loading="lazy"
         alt=""
         src="/group-351@2x.png"
-      />
+      />*/}
     </header>
   );
 };

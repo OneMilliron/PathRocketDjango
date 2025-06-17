@@ -14,7 +14,7 @@ const FrameComponent7 = ({ className = "" }) => {
           src="/path-roeckt-logo.svg"
         />
         <div className="relative z-[1] mq450:text-base">
-          NeXtStep is a web app designed to help new grads and students in tech
+          Path Rocket is a web app designed to help new grads and students in tech
           land their first job or internship. It combines a job aggregator
           (scraping listings from tech job boards), a GPT-powered resume
           reviewer, cover letter generator, and a smart chatbot assistant to
@@ -50,16 +50,16 @@ const FrameComponent7 = ({ className = "" }) => {
       <div className="flex flex-col items-start justify-start pt-[55px] pb-0 pl-0 pr-3.5">
         <div className="flex flex-col items-start justify-start gap-[19px]">
           <h2 className="m-0 relative text-[length:inherit] font-bold font-[inherit] z-[1] mq450:text-[21px]">
-            Important links
+            Important
           </h2>
           <div className="flex flex-col items-start justify-start gap-[13px] text-xl">
             <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-base">
               Home
             </h3>
             <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-base">{`About `}</h3>
-            <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-base">
+            {/*<h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-base">
               Find Jobs
-            </h3>
+            </h3>*/}
             <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-base">
               Pricing
             </h3>
@@ -89,7 +89,7 @@ const FrameComponent7 = ({ className = "" }) => {
                 />
               </div>
               <div className="flex-1 relative inline-block min-w-[251px] max-w-full z-[1] mq450:text-lg">
-                2/39 East Tamaki Road , Papatoetoe Auckland 2025
+                1 Castle Point Terrace, Hoboken, NJ 07030
               </div>
             </div>
             <div className="flex flex-row items-start justify-start gap-[11px]">
@@ -101,19 +101,19 @@ const FrameComponent7 = ({ className = "" }) => {
                 />
               </div>
               <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-lg">
-                02102268616, 021 266 6374
+                978-868-3508
               </h3>
             </div>
             <div className="flex flex-row items-start justify-start gap-3">
               <div className="flex flex-col items-start justify-start pt-[5px] px-0 pb-0">
-                <img
+                {/*<img
                   className="w-[18px] h-[18px] relative overflow-hidden shrink-0 z-[1]"
                   alt=""
                   src="/dashiconsemailalt.svg"
-                />
+                />*/}
               </div>
               <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] mq450:text-lg">
-                info@nextstep.co.nz
+                {/*info@nextstep.co.nz*/}
               </h3>
             </div>
           </div>

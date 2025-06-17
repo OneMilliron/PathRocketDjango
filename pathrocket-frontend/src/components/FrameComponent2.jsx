@@ -51,7 +51,7 @@ const FrameComponent2 = ({ className = "" }) => {
                   src="/vector-2.svg"
                 />
               </div>
-              <div className="w-[90px] flex flex-col items-start justify-start pt-[13px] px-0 pb-0 box-border">
+              {/*<div className="w-[90px] flex flex-col items-start justify-start pt-[13px] px-0 pb-0 box-border">
                 <div className="self-stretch h-[27px] relative">
                   <h3 className="m-0 absolute top-[0px] left-[0px] text-[length:inherit] font-normal font-[inherit] inline-block min-w-[73px] whitespace-nowrap z-[2]">
                     Find Jobs
@@ -63,7 +63,7 @@ const FrameComponent2 = ({ className = "" }) => {
                     src="/arrow-1-stroke.svg"
                   />
                 </div>
-              </div>
+              </div>*/}
               <div className="flex flex-col items-start justify-start pt-[15px] px-0 pb-0">
                 <img
                   className="w-px h-6 relative z-[2]"
@@ -91,7 +91,7 @@ const FrameComponent2 = ({ className = "" }) => {
               <button className="cursor-pointer border-[#fff] border-solid border-[1px] py-[11px] pl-[34px] pr-[33px] bg-[transparent] self-stretch flex flex-row items-start justify-start z-[2] hover:bg-[rgba(230,230,230,0.09)] hover:border-[#e6e6e6] hover:border-solid hover:hover:border-[1px] hover:box-border">
                 <div className="h-[53px] w-[189px] relative border-[#fff] border-solid border-[1px] box-border hidden" />
                 <b className="relative text-xl font-['Afacad_Flux'] text-[#fff] text-left z-[1]">
-                  Login / Register
+                  Start Now
                 </b>
               </button>
             </div>
@@ -119,7 +119,7 @@ const FrameComponent2 = ({ className = "" }) => {
           <div className="w-[389px] flex flex-row items-start justify-start py-0 px-[39px] box-border max-w-full text-center text-[35px] text-Primary font-['Afacad_Flux']">
             <div className="flex-1 flex flex-row items-end justify-start flex-wrap content-end pt-0 px-0 pb-[1.1px] [row-gap:20px]">
               <h2 className="m-0 flex-1 relative text-[length:inherit] font-bold font-[inherit] inline-block min-w-[197px] shrink-0 z-[4] mq450:text-[21px] mq1000:text-[28px]">
-                Try NeXtStep Now
+                Try Path Rocket Now
               </h2>
               <div className="flex flex-col items-start justify-end pt-0 px-0 pb-0 ml-[-17px] relative mq450:ml-0">
                 <img

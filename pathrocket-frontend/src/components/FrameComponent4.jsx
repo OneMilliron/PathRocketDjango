@@ -67,7 +67,7 @@ const FrameComponent4 = ({ className = "" }) => {
           <div className="w-[1150px] flex flex-row items-start justify-between gap-5 max-w-full mq1000:flex-wrap">
             <div className="flex flex-col items-start justify-start pt-5 px-0 pb-0">
               <h2 className="m-0 relative text-[length:inherit] font-bold font-[inherit] mq450:text-xl mq1000:text-[27px]">
-                Job Aggregator
+                Job Hunt (Soon)
               </h2>
             </div>
             <div className="flex flex-col items-start justify-start py-0 pl-0 pr-[15px]">
@@ -78,7 +78,7 @@ const FrameComponent4 = ({ className = "" }) => {
             </div>
             <div className="flex flex-col items-start justify-start pt-5 px-0 pb-0">
               <h2 className="m-0 relative text-[length:inherit] font-bold font-[inherit] mq450:text-xl mq1000:text-[27px]">
-                AI Job Coach
+                PDF Download
               </h2>
             </div>
           </div>
@@ -92,15 +92,13 @@ const FrameComponent4 = ({ className = "" }) => {
             </div>
             <div className="flex-[0.9751] flex flex-col items-start justify-start py-0 pl-0 pr-2.5 box-border min-w-[261px] max-w-full mq725:flex-1">
               <div className="h-[202px] relative inline-block shrink-0 mq450:text-[21px]">
-                Upload your resume or share your experience, and NeXtStep
+                Upload your resume or share your experience, and Path Rocket
                 generates tailored, role-specific resumes and cover letters in
-                seconds. (This will be a GPT wrapper)
+                seconds.
               </div>
             </div>
             <div className="w-[370px] relative inline-block shrink-0 max-w-full mq450:text-[21px]">
-              Chat with our GPT-powered assistant to get tips on interviews,
-              networking, and navigating your job hunt. Think of it as your
-              personal career coach, available 24/7. (Also GPT Wrapper)
+              After you create a resume that fits you, you can simply download it as a PDF and continue.
             </div>
           </div>
         </section>
