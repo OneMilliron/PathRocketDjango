@@ -7,7 +7,8 @@ from .views import (
     generate_resume_view,  # ✅ use the view, not the text generator
     list_resumes,
     delete_resume,
-    check_resume_quota
+    check_resume_quota,
+    improve_resume
 )
 
 urlpatterns = [
@@ -19,5 +20,7 @@ urlpatterns = [
     path('resumes/my/', list_resumes, name='list_resumes'),
     path('resume/<int:resume_id>/delete/', delete_resume, name='delete_resume'),
     path('api/check-quota/', check_resume_quota, name='check_resume_quota'),
+    path('api/improve-resume/', improve_resume, name='improve_resume'),
+
 ]
 

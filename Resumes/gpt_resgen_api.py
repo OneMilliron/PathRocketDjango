@@ -75,3 +75,22 @@ Tailor the resume to emphasize alignment with this job. Use relevant keywords an
     )
 
     return response.choices[0].message.content.strip()
+
+
+def improve_existing_resume(raw_text):
+    prompt = f"""
+You are an expert resume writer.
+
+Here is a resume in plain text format. Improve its clarity, formatting, and professionalism. Remove fluff, improve bullet points, and make it ATS-optimized. Keep all factual information intact. Return only the improved resume.
+
+Resume:
+{raw_text}
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.6,
+    )
+
+    return response.choices[0].message.content.strip()

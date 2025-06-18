@@ -9,6 +9,7 @@ const ResumeGrader = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [generatedResume, setGeneratedResume] = useState("");
   const [resumeId, setResumeId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,12 +30,73 @@ const ResumeGrader = () => {
     fileInputRef.current.click();
   };
 
-  const handleFileChange = (e) => {
+  const handleRemoveUploadedFile = () => {
+    setPdfFile(null);
+    setGeneratedResume("");
+    setResumeId(null);
+  };
+
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      setPdfFile(file);
-    } else {
+    if (!file || file.type !== "application/pdf") {
       alert("Please upload a valid PDF.");
+      return;
+    }
+
+    setPdfFile(file);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        "http://localhost:8000/resumes/api/improve-resume/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setGeneratedResume(response.data.resume);
+      setResumeId(response.data.resume_id);
+    } catch (error) {
+      console.error("Resume improvement failed:", error);
+      alert("Failed to process your resume.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitImprovedResume = async () => {
+    if (!pdfFile) {
+      alert("Please upload a PDF first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", pdfFile);
+
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        "http://localhost:8000/resumes/api/improve-resume/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setGeneratedResume(response.data.resume);
+      setResumeId(response.data.resume_id);
+    } catch (error) {
+      console.error("Resume improvement failed:", error);
+      alert("Failed to process your resume.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,6 +110,7 @@ const ResumeGrader = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const payload = {
       name: formData.name,
@@ -78,6 +141,8 @@ const ResumeGrader = () => {
     } catch (error) {
       console.error("Resume generation failed:", error);
       alert("Something went wrong. Check the console.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,7 +193,7 @@ const ResumeGrader = () => {
               onClick={handleButtonClick}
               className="bg-Primary text-white px-6 py-2 rounded-full hover:bg-indigo-600 transition"
             >
-              Upload Resume
+              Upload Existing File
             </button>
             <input
               ref={fileInputRef}
@@ -138,30 +203,62 @@ const ResumeGrader = () => {
               onChange={handleFileChange}
             />
             {pdfFile && <p className="text-sm mt-2">{pdfFile.name}</p>}
+            {pdfFile && (
+              <button
+                onClick={handleRemoveUploadedFile}
+                className="mt-1 text-red-500 text-sm hover:underline"
+              >
+                Remove File
+              </button>
+            )}
+
+            {pdfFile && (
+              <button
+                onClick={handleSubmitImprovedResume}
+                className="mt-2 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition text-sm"
+              >
+                Submit for Improved Resume
+              </button>
+            )}
           </div>
 
           {/* Fill Your Info */}
-          <div className="flex-1 border-2 border-gray-300 rounded-2xl p-6 flex flex-col gap-4">
-            <input type="text" name="name" placeholder="Your Full Name" value={formData.name} onChange={handleChange} className="border rounded px-4 py-2" required />
-            <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className="border rounded px-4 py-2" />
-            <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="border rounded px-4 py-2" />
-            <input type="text" name="linkedin" placeholder="LinkedIn URL" value={formData.linkedin} onChange={handleChange} className="border rounded px-4 py-2" />
-            <input type="text" name="education" placeholder="Education" value={formData.education} onChange={handleChange} className="border rounded px-4 py-2" required />
-            <textarea name="experience" placeholder="Experience Summary" rows={3} value={formData.experience} onChange={handleChange} className="border rounded px-4 py-2" required />
-            <input type="text" name="skills" placeholder="Skills (comma-separated)" value={formData.skills} onChange={handleChange} className="border rounded px-4 py-2" required />
-            <textarea name="summary" placeholder="Professional Summary" rows={3} value={formData.summary} onChange={handleChange} className="border rounded px-4 py-2" required />
-            <input type="text" name="languages" placeholder="Languages (e.g., English, Spanish)" value={formData.languages} onChange={handleChange} className="border rounded px-4 py-2" />
-            <textarea name="additional_info" placeholder="Additional Info (e.g., certifications, hobbies)" rows={2} value={formData.additional_info} onChange={handleChange} className="border rounded px-4 py-2" />
-            <hr className="my-4" />
-            <h3 className="text-lg font-semibold">Job Posting (Optional)</h3>
-            <input type="text" name="job_title" placeholder="Job Title" value={formData.job_title} onChange={handleChange} className="border rounded px-4 py-2" />
-            <input type="text" name="job_company" placeholder="Company Name" value={formData.job_company} onChange={handleChange} className="border rounded px-4 py-2" />
-            <textarea name="job_description" placeholder="Job Description" rows={3} value={formData.job_description} onChange={handleChange} className="border rounded px-4 py-2" />
-            <button type="submit" className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+          <div className="flex-1 border rounded-xl bg-white shadow-sm p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <input type="text" name="name" placeholder="Your Full Name" value={formData.name} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" required />
+              <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+              <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+              <input type="text" name="linkedin" placeholder="LinkedIn URL" value={formData.linkedin} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+              <input type="text" name="education" placeholder="Education" value={formData.education} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" required />
+              <input type="text" name="skills" placeholder="Skills (comma-separated)" value={formData.skills} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" required />
+              <input type="text" name="languages" placeholder="Languages" value={formData.languages} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+            </div>
+
+            <textarea name="experience" placeholder="Experience Summary" rows={3} value={formData.experience} onChange={handleChange} className="mt-4 w-full border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" required />
+            <textarea name="summary" placeholder="Professional Summary" rows={3} value={formData.summary} onChange={handleChange} className="mt-4 w-full border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" required />
+            <textarea name="additional_info" placeholder="Additional Info (certifications, achievements, etc.)" rows={2} value={formData.additional_info} onChange={handleChange} className="mt-4 w-full border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+
+            <h3 className="text-md font-semibold mt-6 mb-2">Job Posting (Optional)</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <input type="text" name="job_title" placeholder="Job Title" value={formData.job_title} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+              <input type="text" name="job_company" placeholder="Company Name" value={formData.job_company} onChange={handleChange} className="border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+            </div>
+            <textarea name="job_description" placeholder="Job Description" rows={3} value={formData.job_description} onChange={handleChange} className="mt-4 w-full border rounded px-3 py-1.5 text-sm italic placeholder-gray-400" />
+
+            <button type="submit" className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 text-sm">
               Submit for Resume Generation
             </button>
           </div>
         </form>
+
+        {/* Loading indicator */}
+        {loading && (
+          <div className="mt-6 flex justify-center">
+            <p className="text-indigo-600 font-semibold animate-pulse text-sm">
+              Generating your resume, please wait...
+            </p>
+          </div>
+        )}
 
         {/* Generated Resume Output */}
         {generatedResume && (

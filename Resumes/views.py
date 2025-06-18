@@ -174,3 +174,37 @@ def submit_resume_form(request):
             {"error": "Rate limit exceeded. Please try again later."},
             status=429
         )
+
+
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import parser_classes
+import PyPDF2
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@parser_classes([MultiPartParser, FormParser])
+def improve_resume(request):
+    uploaded_file = request.FILES.get('file')
+    if not uploaded_file:
+        return Response({"error": "No file uploaded."}, status=400)
+
+    if uploaded_file.content_type != "application/pdf":
+        return Response({"error": "Only PDF files are supported."}, status=400)
+
+    try:
+        reader = PyPDF2.PdfReader(uploaded_file)
+        raw_text = " ".join([page.extract_text() or "" for page in reader.pages])
+    except Exception as e:
+        return Response({"error": f"Failed to read PDF: {str(e)}"}, status=400)
+
+    # ✨ Call GPT to improve the resume
+    from .gpt_resgen_api import improve_existing_resume
+    improved = improve_existing_resume(raw_text)
+
+    # Save improved version (optional)
+    resume = Resume.objects.create(user=None, job_title=None, company=None, content=improved)
+
+    return Response({
+        "resume": improved,
+        "resume_id": resume.id,
+    })
