@@ -1,99 +1,185 @@
+import { useState, useRef } from "react";
+import axios from "axios";
 import DashboardSideBar from "../components/DashboardSideBar";
 import FrameComponent8 from "../components/FrameComponent8";
 import TemplateOptions from "../components/TemplateOptions";
-import { useRef } from "react";
 
 const ResumeGrader = () => {
   const fileInputRef = useRef(null);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [generatedResume, setGeneratedResume] = useState("");
+  const [resumeId, setResumeId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    linkedin: "",
+    education: "",
+    experience: "",
+    skills: "",
+    summary: "",
+    additional_info: "",
+    languages: "",
+    job_title: "",
+    job_company: "",
+    job_description: ""
+  });
 
-const handleButtonClick = () => {
-  fileInputRef.current.click();
-};
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
 
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file && file.type === "application/pdf") {
-    console.log("Selected file:", file.name);
-  } else {
-    alert("Please select a PDF file.");
-  }
-};
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      setPdfFile(file);
+    } else {
+      alert("Please upload a valid PDF.");
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      linkedin: formData.linkedin,
+      education: formData.education,
+      experience: formData.experience,
+      skills: formData.skills,
+      summary: formData.summary,
+      additional_info: formData.additional_info,
+      languages: formData.languages,
+      is_tailored: true,
+      job: {
+        title: formData.job_title,
+        company: formData.job_company,
+        description: formData.job_description,
+      },
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/resumes/api/generate-resume/",
+        payload
+      );
+      setGeneratedResume(response.data.resume);
+      setResumeId(response.data.resume_id);
+    } catch (error) {
+      console.error("Resume generation failed:", error);
+      alert("Something went wrong. Check the console.");
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!resumeId) {
+      alert("No resume to download yet.");
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/resumes/resume/${resumeId}/download/`,
+        {
+          responseType: 'blob',
+        }
+      );
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `resume_${resumeId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download PDF:", error);
+      alert("PDF download failed.");
+    }
+  };
 
   return (
-    <div className="w-full relative shadow-[0px_4px_43px_rgba(0,_0,_0,_0.05)] rounded-2xl bg-[#fff] overflow-hidden flex flex-row items-start justify-start leading-[normal] tracking-[normal] z-[5] text-left text-[22px] text-Text-Muted font-[Afacad] mq1000:pl-5 mq1000:pr-5 mq1000:box-border">
-      <section className="h-full w-full absolute !!m-[0 important] top-[0px] right-[0px] bottom-[0px] left-[0px] shadow-[0px_4px_43px_rgba(0,_0,_0,_0.05)] rounded-2xl bg-[#fff] z-[5]" />
+    <div className="w-full flex bg-white shadow rounded-2xl overflow-hidden">
       <DashboardSideBar />
-      <main className="flex-1 flex flex-col items-end justify-start gap-5 max-w-[calc(100%_-_293px)] mq1000:max-w-full">
+      <main className="flex-1 p-8 max-w-[calc(100%-293px)]">
         <FrameComponent8 />
-        <section className="self-stretch flex flex-row items-start justify-end py-0 px-[50px] box-border max-w-full text-center text-[22px] text-[#fff] font-[Afacad] mq1050:pl-[25px] mq1050:pr-[25px] mq1050:box-border">
-          <div className="flex-1 flex flex-row items-start justify-start gap-[25px] max-w-full mq1000:flex-wrap">
-            <div className="flex-1 flex flex-row items-start justify-start relative min-w-[303px] max-w-full mq1000:flex-1">
-              <div className="flex-1 rounded-2xl bg-[#fff] border-Primary border-solid border-[2px] box-border flex flex-col items-end justify-start pt-[11px] px-3 pb-20 gap-[41px] max-w-full z-[6] mq450:gap-5 mq450:pt-5 mq450:pb-[52px] mq450:box-border">
-                <img
-                  className="w-7 h-7 relative z-[1]"
-                  loading="lazy"
-                  alt=""
-                  src="/group-6427.svg"
-                />
-                <div className="self-stretch flex flex-row items-start justify-center py-0 pl-[21px] pr-5">
-                  <div className="flex flex-col items-start justify-start gap-9">
-                    <div className="self-stretch flex flex-row items-start justify-start py-0 px-10">
-                      <img
-                        className="h-[121px] flex-1 relative max-w-full overflow-hidden z-[1]"
-                        loading="lazy"
-                        alt=""
-                        src="/vector-16.svg"
-                      />
-                    </div>
-                    <button
-  type="button"
-  onClick={handleButtonClick}
-  className="rounded-[45px] bg-Primary flex flex-row items-center justify-center pt-[7px] px-[42px] pb-2 z-[1] hover:bg-indigo-600 transition"
->
-  <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1] text-white">
-    Upload Resume
-  </h3>
-</button>
 
-<input
-  ref={fileInputRef}
-  type="file"
-  accept="application/pdf"
-  style={{ display: "none" }}
-  onChange={handleFileChange}
-/>
-
-
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex-[0.9399] rounded-2xl bg-[#fff] border-Line-Gray border-solid border-[2px] box-border flex flex-col items-end justify-start pt-[11px] px-3 pb-20 gap-[42.5px] min-w-[303px] max-w-full z-[6] text-Text-Muted mq450:gap-[21px] mq450:pt-5 mq450:pb-[52px] mq450:box-border mq1000:flex-1">
-              <img
-                className="w-7 h-7 relative z-[1]"
-                loading="lazy"
-                alt=""
-                src="/group-6427-1.svg"
-              />
-              <div className="self-stretch flex flex-row items-start justify-center py-0 px-5">
-                <img
-                  className="h-[113px] w-[102px] relative z-[1]"
-                  loading="lazy"
-                  alt=""
-                  src="/vector-17.svg"
-                />
-              </div>
-              <div className="self-stretch flex flex-row items-start justify-end py-0 pl-[90px] pr-[89px] mq450:pl-5 mq450:pr-5 mq450:box-border">
-                <div className="flex-1 rounded-[45px] bg-Line-Gray flex flex-row items-start justify-start pt-[7px] pb-2 pl-[42px] pr-[41px] z-[1] mq450:pl-5 mq450:box-border">
-                  <h3 className="m-0 relative text-[length:inherit] font-normal font-[inherit] z-[1]">
-                    Fill Your Information
-                  </h3>
-                </div>
-              </div>
-            </div>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col lg:flex-row gap-10 mt-10 text-black"
+        >
+          {/* Upload Resume */}
+          <div className="flex-1 border-2 border-indigo-500 rounded-2xl p-6 flex flex-col items-center gap-6">
+            <img src="/vector-16.svg" alt="Rocket" className="h-[120px]" />
+            <button
+              type="button"
+              onClick={handleButtonClick}
+              className="bg-Primary text-white px-6 py-2 rounded-full hover:bg-indigo-600 transition"
+            >
+              Upload Resume
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            {pdfFile && <p className="text-sm mt-2">{pdfFile.name}</p>}
           </div>
-        </section>
-        <section className="self-stretch h-[357px] flex flex-row items-start justify-end py-0 pl-[51px] pr-[50px] box-border max-w-full mq1050:pl-[25px] mq1050:pr-[25px] mq1050:box-border">
+
+          {/* Fill Your Info */}
+          <div className="flex-1 border-2 border-gray-300 rounded-2xl p-6 flex flex-col gap-4">
+            <input type="text" name="name" placeholder="Your Full Name" value={formData.name} onChange={handleChange} className="border rounded px-4 py-2" required />
+            <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className="border rounded px-4 py-2" />
+            <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="border rounded px-4 py-2" />
+            <input type="text" name="linkedin" placeholder="LinkedIn URL" value={formData.linkedin} onChange={handleChange} className="border rounded px-4 py-2" />
+            <input type="text" name="education" placeholder="Education" value={formData.education} onChange={handleChange} className="border rounded px-4 py-2" required />
+            <textarea name="experience" placeholder="Experience Summary" rows={3} value={formData.experience} onChange={handleChange} className="border rounded px-4 py-2" required />
+            <input type="text" name="skills" placeholder="Skills (comma-separated)" value={formData.skills} onChange={handleChange} className="border rounded px-4 py-2" required />
+            <textarea name="summary" placeholder="Professional Summary" rows={3} value={formData.summary} onChange={handleChange} className="border rounded px-4 py-2" required />
+            <input type="text" name="languages" placeholder="Languages (e.g., English, Spanish)" value={formData.languages} onChange={handleChange} className="border rounded px-4 py-2" />
+            <textarea name="additional_info" placeholder="Additional Info (e.g., certifications, hobbies)" rows={2} value={formData.additional_info} onChange={handleChange} className="border rounded px-4 py-2" />
+            <hr className="my-4" />
+            <h3 className="text-lg font-semibold">Job Posting (Optional)</h3>
+            <input type="text" name="job_title" placeholder="Job Title" value={formData.job_title} onChange={handleChange} className="border rounded px-4 py-2" />
+            <input type="text" name="job_company" placeholder="Company Name" value={formData.job_company} onChange={handleChange} className="border rounded px-4 py-2" />
+            <textarea name="job_description" placeholder="Job Description" rows={3} value={formData.job_description} onChange={handleChange} className="border rounded px-4 py-2" />
+            <button type="submit" className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+              Submit for Resume Generation
+            </button>
+          </div>
+        </form>
+
+        {/* Generated Resume Output */}
+        {generatedResume && (
+          <div className="mt-10 border border-green-400 rounded p-6 text-gray-800 bg-green-50">
+            <h2 className="text-xl font-bold mb-4">Generated Resume:</h2>
+            <pre className="whitespace-pre-wrap">{generatedResume}</pre>
+            {resumeId && (
+              <button
+                onClick={handleDownloadPdf}
+                className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+              >
+                Download as PDF
+              </button>
+            )}
+          </div>
+        )}
+
+        <section className="mt-10">
           <TemplateOptions />
         </section>
       </main>

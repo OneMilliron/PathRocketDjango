@@ -1,48 +1,65 @@
 from django.http import HttpResponse, FileResponse
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.exceptions import Throttled
-from .gpt_resgen_api import generate_resume
 from .utils.pdf import generate_resume_pdf
 from .models import Resume
 from .serializers import ResumeSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+import PyPDF2
+from django.views.decorators.csrf import csrf_exempt
+from .gpt_resgen_api import generate_resume
 
 # Throttle class (3 per day or your custom setting)
 class ResumeRateThrottle(UserRateThrottle):
     scope = 'resume_generation'
 
-
 def home(request):
     return HttpResponse("Welcome to the Users app!")
 
-
+@csrf_exempt
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 @throttle_classes([ResumeRateThrottle])
 def generate_resume_view(request):
-    profile = request.user.userprofile
-    job = request.data.get('job')
+    # Extract form fields
+    name = request.data.get('name', 'Your Name')
+    email = request.data.get('email', '')
+    phone = request.data.get('phone', '')
+    linkedin = request.data.get('linkedin', '')
+    education = request.data.get('education', '')
+    experience = request.data.get('experience', '')
+    skills = request.data.get('skills', '')
+    summary = request.data.get('summary', '')
+    additional_info = request.data.get('additional_info', '')
+    languages = request.data.get('languages', '')
+    job = request.data.get('job', {})
     is_tailored = request.data.get('is_tailored', False)
-    download_pdf = request.data.get('download_pdf', False)
 
     try:
-        resume_content = generate_resume(profile, job=job, is_tailored=is_tailored)
-
-        job_title = job.get('title') if job else None
-        company = job.get('company') if job else None
-
-        saved_resume = Resume.objects.create(
-            user=request.user,
-            job_title=job_title,
-            company=company,
-            content=resume_content
+        resume_content = generate_resume(
+            name=name,
+            email=email,
+            phone=phone,
+            linkedin=linkedin,
+            education=education,
+            experience=experience,
+            skills=skills,
+            summary=summary,
+            additional_info=additional_info,
+            languages=languages,
+            job=job,
+            is_tailored=is_tailored
         )
 
-        if download_pdf:
-            pdf_file = generate_resume_pdf(resume_content)
-            return FileResponse(pdf_file, as_attachment=True, filename='resume.pdf')
+        saved_resume = Resume.objects.create(
+            user=None,
+            job_title=job.get("title") if job else None,
+            company=job.get("company") if job else None,
+            content=resume_content
+        )
 
         return Response({
             "resume": resume_content,
@@ -51,9 +68,10 @@ def generate_resume_view(request):
 
     except Throttled:
         return Response(
-            {"error": "Rate limit exceeded. You can only generate 3 resumes per day."},
+            {"error": "Rate limit exceeded. Please try again later."},
             status=429
         )
+
 
 
 @api_view(['GET'])
@@ -67,12 +85,11 @@ def get_resume(request, resume_id):
     serializer = ResumeSerializer(resume)
     return Response(serializer.data)
 
-
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # <-- allow public access
 def download_resume_pdf(request, resume_id):
     try:
-        resume = Resume.objects.get(id=resume_id, user=request.user)
+        resume = Resume.objects.get(id=resume_id)  # <-- no user filtering
     except Resume.DoesNotExist:
         return Response({'error': 'Resume not found'}, status=404)
 
@@ -80,6 +97,7 @@ def download_resume_pdf(request, resume_id):
     filename = f"{resume.job_title or 'resume'}_{resume.company or 'general'}.pdf".replace(" ", "_")
 
     return FileResponse(pdf_file, as_attachment=True, filename=filename)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -110,9 +128,49 @@ def list_resumes(request):
     serializer = ResumeSerializer(query.order_by('-created_at'), many=True)
     return Response(serializer.data)
 
-
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 @throttle_classes([ResumeRateThrottle])
 def check_resume_quota(request):
     return Response({"message": "You still have quota available."})
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([ResumeRateThrottle])
+@csrf_exempt  # optional for MVP
+def submit_resume_form(request):
+    name = request.data.get('name')
+    email = request.data.get('email')  # optional use
+    experience = request.data.get('experience')
+    skills = request.data.get('skills', '')
+    job = request.data.get('job', {})
+    is_tailored = request.data.get('is_tailored', False)
+
+    if not all([name, experience]):
+        return Response({"error": "Name and experience are required."}, status=400)
+
+    try:
+        resume_content = generate_resume(
+            name=name,
+            experience=experience,
+            skills=skills,
+            job=job,
+            is_tailored=is_tailored
+        )
+
+        saved_resume = Resume.objects.create(
+            user=None,  # anonymous
+            job_title=job.get("title") if job else None,
+            company=job.get("company") if job else None,
+            content=resume_content
+        )
+
+        return Response({
+            "resume": resume_content,
+            "resume_id": saved_resume.id
+        })
+
+    except Throttled:
+        return Response(
+            {"error": "Rate limit exceeded. Please try again later."},
+            status=429
+        )

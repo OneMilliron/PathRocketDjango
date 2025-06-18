@@ -196,4 +196,12 @@ sentry_sdk.init(
 )
 
 
-CORS_ALLOW_ALL_ORIGINS = True  # ✅ For dev only
+# Allow requests from your frontend
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",  # Vite or frontend dev server
+]
+
+# Also allow CORS if you haven't already
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]

@@ -5,43 +5,68 @@ from dotenv import load_dotenv
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+def generate_resume(name, email, phone, linkedin, education, experience, skills, summary, additional_info, languages, job=None, is_tailored=False):
+    job_title = job.get('title', '') if job else ''
+    job_company = job.get('company', '') if job else ''
+    job_desc = job.get('description', '') if job else ''
 
-def generate_resume(profile, job=None, is_tailored=False):
-    name = f"{profile.user.first_name} {profile.user.last_name}".strip()
-    education = profile.education or "N/A"
-    experience = profile.experience or "N/A"
-    skills = profile.skills or "N/A"
-    summary = profile.summary or "N/A"
+    prompt = f"""You are a professional resume generator.
 
-    job_title = job.get('title') if job else None
-    job_company = job.get('company') if job else None
-    job_desc = job.get('description') if job else None
+Generate a clean, ATS-friendly resume in plain text format using only the user-provided data. DO NOT FABRICATE DATES, AWARDS OR OTHER THINGS. Make whatever the user listed sound impressive but do not hallucinate anything.
 
-    # Base prompt (same for general version)
-    prompt = f"""
-You are a professional resume generator.
-
-Generate a clean, ATS-friendly resume in plain text format based on this user's profile.
-
+----------------
 Name: {name}
-Education: {education}
-Experience: {experience}
-Skills: {skills}
-Summary: {summary}
+----------------
+
+----------------
+Contact Details
+----------------
+Email: {email}
+Phone: {phone}
+LinkedIn: {linkedin}
+
+----------------
+Professional Summary
+----------------
+{summary}
+
+----------------
+Education
+----------------
+{education}
+
+----------------
+Professional Experience
+----------------
+{experience}
+
+----------------
+Skills
+----------------
+{skills}
+
+----------------
+Languages
+----------------
+{languages}
+
+----------------
+Additional Information
+----------------
+{additional_info}
 """
 
-    if is_tailored and job:
+    if is_tailored and job_title and job_company:
         prompt += f"""
 
-The user is applying for the position: {job_title or 'N/A'} at {job_company or 'N/A'}.
+The user is applying for the position: {job_title} at {job_company}.
 
-Job Description: {job_desc or 'N/A'}
+Job Description: {job_desc}
 
-Please tailor the resume to this specific job, emphasizing the most relevant skills and experience for this position. Match language to the job posting, and optimize for ATS systems.
-
+Tailor the resume to emphasize alignment with this job. Use relevant keywords and match tone and focus of the job description. Don't invent credentials.
 """
 
-    prompt += "\nFormat the resume with clear headings and bullet points."
+    prompt += "\nFormat with clear headings and bullet points. Do not make up fake jobs, universities, or skills."
 
     response = client.chat.completions.create(
         model="gpt-4",
