@@ -1,6 +1,9 @@
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
 const FrameComponent2 = ({ className = "" }) => {
+  const navigate = useNavigate();
+
   return (
     <section
       className={`self-stretch flex flex-row items-start justify-start pt-0 px-0 pb-[169px] box-border max-w-full mq1000:pb-[71px] mq1000:box-border mq725:pb-[110px] mq725:box-border ${className}`}
@@ -51,19 +54,6 @@ const FrameComponent2 = ({ className = "" }) => {
                   src="/vector-2.svg"
                 />
               </div>
-              {/*<div className="w-[90px] flex flex-col items-start justify-start pt-[13px] px-0 pb-0 box-border">
-                <div className="self-stretch h-[27px] relative">
-                  <h3 className="m-0 absolute top-[0px] left-[0px] text-[length:inherit] font-normal font-[inherit] inline-block min-w-[73px] whitespace-nowrap z-[2]">
-                    Find Jobs
-                  </h3>
-                  <img
-                    className="absolute top-[12px] left-[79px] w-[11px] h-1.5 object-contain z-[2]"
-                    loading="lazy"
-                    alt=""
-                    src="/arrow-1-stroke.svg"
-                  />
-                </div>
-              </div>*/}
               <div className="flex flex-col items-start justify-start pt-[15px] px-0 pb-0">
                 <img
                   className="w-px h-6 relative z-[2]"
@@ -88,8 +78,11 @@ const FrameComponent2 = ({ className = "" }) => {
                   Contact Us
                 </h3>
               </div>
-              <button className="cursor-pointer border-[#fff] border-solid border-[1px] py-[11px] pl-[34px] pr-[33px] bg-[transparent] self-stretch flex flex-row items-start justify-start z-[2] hover:bg-[rgba(230,230,230,0.09)] hover:border-[#e6e6e6] hover:border-solid hover:hover:border-[1px] hover:box-border">
-                <div className="h-[53px] w-[189px] relative border-[#fff] border-solid border-[1px] box-border hidden" />
+              <button
+                onClick={() => navigate("/resumes")}
+                className="cursor-pointer border-[#fff] border-solid border-[1px] py-[11px] pl-[34px] pr-[33px] bg-transparent self-stretch flex flex-row items-start justify-start z-[2] hover:bg-[rgba(230,230,230,0.09)] hover:border-[#e6e6e6]"
+              >
+                <div className="h-[53px] w-[189px] hidden" />
                 <b className="relative text-xl font-['Afacad_Flux'] text-[#fff] text-left z-[1]">
                   Start Now
                 </b>

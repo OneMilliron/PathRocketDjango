@@ -8,7 +8,8 @@ from .views import (
     list_resumes,
     delete_resume,
     check_resume_quota,
-    improve_resume
+    improve_resume,
+    grade_pdf
 )
 
 urlpatterns = [
@@ -21,6 +22,8 @@ urlpatterns = [
     path('resume/<int:resume_id>/delete/', delete_resume, name='delete_resume'),
     path('api/check-quota/', check_resume_quota, name='check_resume_quota'),
     path('api/improve-resume/', improve_resume, name='improve_resume'),
+    path('grade/', grade_pdf, name='grade-pdf'),
+
 
 ]
 

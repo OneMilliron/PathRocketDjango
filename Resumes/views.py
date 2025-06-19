@@ -208,3 +208,33 @@ def improve_resume(request):
         "resume": improved,
         "resume_id": resume.id,
     })
+
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
+from PyPDF2 import PdfReader
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def grade_pdf(request):
+    file = request.FILES.get("file")
+    if not file:
+        return Response({"error": "No file uploaded."}, status=400)
+
+    try:
+        reader = PdfReader(file)
+        text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
+
+        # You can now analyze `text` or send it to OpenAI for feedback
+        # For now we'll just echo a sample grade
+        return Response({
+            "grade": "B+",
+            "feedback": "Well-structured, but try to be more concise and quantify your achievements.",
+            "word_count": len(text.split())
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

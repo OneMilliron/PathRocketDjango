@@ -10,6 +10,11 @@ const ResumeGrader = () => {
   const [generatedResume, setGeneratedResume] = useState("");
   const [resumeId, setResumeId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [coverLetterId, setCoverLetterId] = useState(null);
+  const [loadingCoverLetter, setLoadingCoverLetter] = useState(false);
+  const [gradingFeedback, setGradingFeedback] = useState(null);
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,6 +34,8 @@ const ResumeGrader = () => {
   const handleButtonClick = () => {
     fileInputRef.current.click();
   };
+
+  
 
   const handleRemoveUploadedFile = () => {
     setPdfFile(null);
@@ -108,72 +115,186 @@ const ResumeGrader = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleFileGrade = async (e) => {
+  const file = e.target.files[0];
+  if (!file || file.type !== "application/pdf") {
+    alert("Please upload a PDF.");
+    return;
+  }
 
-    const payload = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      linkedin: formData.linkedin,
-      education: formData.education,
-      experience: formData.experience,
-      skills: formData.skills,
-      summary: formData.summary,
-      additional_info: formData.additional_info,
-      languages: formData.languages,
-      is_tailored: true,
-      job: {
-        title: formData.job_title,
-        company: formData.job_company,
-        description: formData.job_description,
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axios.post("http://localhost:8000/coverletters/grade/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
-    };
+    });
+    setGradingFeedback(response.data);
+  } catch (error) {
+    console.error("Grading failed:", error);
+    alert("Failed to grade the document.");
+  }
+};
 
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/resumes/api/generate-resume/",
-        payload
-      );
-      setGeneratedResume(response.data.resume);
-      setResumeId(response.data.resume_id);
-    } catch (error) {
-      console.error("Resume generation failed:", error);
-      alert("Something went wrong. Check the console.");
-    } finally {
-      setLoading(false);
-    }
+
+  const generateCoverLetter = async () => {
+  const requiredFields = [
+    { field: "name", value: formData.name },
+    { field: "experience", value: formData.experience },
+    { field: "summary", value: formData.summary },
+    { field: "job_description", value: formData.job_description },
+    { field: "job_company", value: formData.job_company },
+    { field: "job_title", value: formData.job_title },
+  ];
+
+  const missingField = requiredFields.find(f => !f.value.trim());
+
+  if (missingField) {
+    alert(`Please fill in all field ("${missingField.field}") field before submitting.`);
+    return;
+  }
+
+  setLoadingCoverLetter(true);
+
+  try {
+    const response = await axios.post("http://localhost:8000/coverletters/generate/", {
+      name: formData.name,
+      experience: formData.experience,
+      resume_text: formData.summary,
+      job_description: formData.job_description,
+      company: formData.job_company,
+      job_title: formData.job_title,
+    });
+
+    const letterId = response.data.letter_id;
+    setCoverLetterId(letterId);
+
+    const fetchResponse = await axios.get(`http://localhost:8000/coverletters/${letterId}/`);
+    setCoverLetter(fetchResponse.data.content);
+  } catch (error) {
+    console.error("Cover letter generation failed:", error);
+    alert("Failed to generate or fetch the cover letter.");
+  } finally {
+    setLoadingCoverLetter(false);
+  }
+};
+
+
+
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Define required fields and check them
+  const requiredFields = [
+    { field: "name", value: formData.name },
+    { field: "education", value: formData.education },
+    { field: "skills", value: formData.skills },
+    { field: "experience", value: formData.experience },
+    { field: "summary", value: formData.summary },
+  ];
+
+  const missingField = requiredFields.find(f => !f.value.trim());
+  if (missingField) {
+    alert(`Please fill in the "${missingField.field}" field before submitting.`);
+    return;
+  }
+
+  setLoading(true);
+
+  const payload = {
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    linkedin: formData.linkedin,
+    education: formData.education,
+    experience: formData.experience,
+    skills: formData.skills,
+    summary: formData.summary,
+    additional_info: formData.additional_info,
+    languages: formData.languages,
+    is_tailored: true,
+    job: {
+      title: formData.job_title,
+      company: formData.job_company,
+      description: formData.job_description,
+    },
   };
 
-  const handleDownloadPdf = async () => {
-    if (!resumeId) {
-      alert("No resume to download yet.");
-      return;
-    }
+  try {
+    const response = await axios.post(
+      "http://localhost:8000/resumes/api/generate-resume/",
+      payload
+    );
+    setGeneratedResume(response.data.resume);
+    setResumeId(response.data.resume_id);
+  } catch (error) {
+    console.error("Resume generation failed:", error);
+    alert("Something went wrong. Check the console.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/resumes/resume/${resumeId}/download/`,
-        {
-          responseType: 'blob',
-        }
-      );
 
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `resume_${resumeId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to download PDF:", error);
-      alert("PDF download failed.");
-    }
-  };
+  const handleDownloadCoverLetterPdf = async () => {
+  if (!coverLetterId) {
+    alert("No cover letter to download yet.");
+    return;
+  }
+
+  try {
+    const response = await axios.get(
+      `http://localhost:8000/coverletters/${coverLetterId}/download/`,
+      {
+        responseType: 'blob',
+      }
+    );
+
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `cover_letter_${coverLetterId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Failed to download cover letter PDF:", error);
+    alert("PDF download failed.");
+  }
+};
+
+const handleDownloadPdf = async () => {
+  if (!resumeId) {
+    alert("No resume to download yet.");
+    return;
+  }
+
+  try {
+    const response = await axios.get(
+      `http://localhost:8000/resumes/resume/${resumeId}/download/`,
+      { responseType: 'blob' }
+    );
+
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `resume_${resumeId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Failed to download resume PDF:", error);
+    alert("PDF download failed.");
+  }
+};
+
 
   return (
     <div className="w-full flex bg-white shadow rounded-2xl overflow-hidden">
@@ -212,6 +333,15 @@ const ResumeGrader = () => {
               </button>
             )}
 
+            {loadingCoverLetter && (
+  <div className="mt-6 flex justify-center">
+    <p className="text-purple-600 font-semibold animate-pulse text-sm">
+      Generating your cover letter, please wait...
+    </p>
+  </div>
+)}
+
+
             {pdfFile && (
               <button
                 onClick={handleSubmitImprovedResume}
@@ -248,6 +378,14 @@ const ResumeGrader = () => {
             <button type="submit" className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 text-sm">
               Submit for Resume Generation
             </button>
+            <button
+  type="button"
+  onClick={generateCoverLetter}
+  className="mt-4 bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 text-sm"
+>
+  Generate Cover Letter
+</button>
+
           </div>
         </form>
 
@@ -275,9 +413,29 @@ const ResumeGrader = () => {
             )}
           </div>
         )}
+        {coverLetter && (
+  <div className="mt-10 border border-blue-400 rounded p-6 text-gray-800 bg-blue-50">
+    <h2 className="text-xl font-bold mb-4">Generated Cover Letter:</h2>
+    <pre className="whitespace-pre-wrap">{coverLetter}</pre>
+    {coverLetterId && (
+      <button
+        onClick={handleDownloadCoverLetterPdf}
+        className="mt-4 bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700"
+      >
+        Download Cover Letter as PDF
+      </button>
+    )}
+  </div>
+)}
+
+
 
         <section className="mt-10">
-          <TemplateOptions />
+          <TemplateOptions
+  formData={formData}
+  setGeneratedResume={setGeneratedResume}
+/>
+
         </section>
       </main>
     </div>
